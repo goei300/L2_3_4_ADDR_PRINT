@@ -105,8 +105,12 @@ void print_MACaddr(u_int8_t *pac){
 }
 
 void print_IP_addr(struct in_addr pac){
-	char* src_ip_order= inet_ntoa(pac);
+	char* src_ip_order= inet_ntoa(pac);  // pac->ip_src(ip_dst) :: uint32_t
 	printf("%s\n",src_ip_order);
+}
+
+void print_TCP_port(u_int16_t pac){
+	printf("%d\n",pac);
 }
 void usage() {
 	printf("syntax: pcap-test <interface>\n");
@@ -153,7 +157,7 @@ int main(int argc, char* argv[]) {
 		// Declare each layer's header
 		struct libnet_ethernet_hdr *ether_hdr = (struct libnet_ethernet_hdr *)packet;
 		struct libnet_ipv4_hdr *ip_hdr = (struct libnet_ipv4_hdr *)(packet + sizeof(struct libnet_ethernet_hdr));
-
+		struct libnet_tcp_hdr *tcp_hdr = (struct libnet_tcp_hdr *)(packet + sizeof(struct libnet_ethernet_hdr) + sizeof(struct libnet_ipv4_hdr));
 		printf("%u bytes captured\n", header->caplen);
 		
 		// Ethernet header
@@ -166,12 +170,18 @@ int main(int argc, char* argv[]) {
 
 		// Ip header
 		printf("IP addr : \n");
-		printf("destination addr : ");
+		printf("source addr : ");
 		print_IP_addr(ip_hdr->ip_src);
 		//printf("ip hdr[0] : %d\n",ip_hdr->ip_src);
 		printf("destination addr : ");
 		print_IP_addr(ip_hdr->ip_dst);
 		
+		// TCP header
+		printf("TCP port : \n");
+		printf("source port : ");
+		print_TCP_port(tcp_hdr->th_sport);
+		printf("destination port : ");
+		print_TCP_port(tcp_hdr->th_dport);
 	}
 
 	pcap_close(pcap);

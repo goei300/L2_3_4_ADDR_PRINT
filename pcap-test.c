@@ -197,19 +197,23 @@ int main(int argc, char* argv[]) {
 		printf("\n");
 
 		//Data frame
+		//calc real payload length
+		u_int16_t total_length = ntohs(ip_hdr->ip_len);  // convert int -> host bytes order
+		u_int16_t headers_size = sizeof(struct libnet_ethernet_hdr) + ip_hdr->ip_hl*4 + tcp_hdr->th_off*4;  // use length
+		u_int16_t payload_size = total_length - headers_size;
 		printf("Data Payload : ");
 		int cnt;
-		if(sizeof(data_payload)>10){
+		if(payload_size>10){
 			cnt=9;
 		}
 		else{
-			
+			cnt = payload_size-1;
 			//cnt=sizeof(data_payload)-1;
 		}
 		for(int i =0 ; i <=cnt ; i++){
 			printf("%02x ",data_payload[i]);
 		}
-		printf("\n");
+		printf("\n\n");
 	}
 
 	pcap_close(pcap);

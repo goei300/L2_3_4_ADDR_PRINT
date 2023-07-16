@@ -158,30 +158,58 @@ int main(int argc, char* argv[]) {
 		struct libnet_ethernet_hdr *ether_hdr = (struct libnet_ethernet_hdr *)packet;
 		struct libnet_ipv4_hdr *ip_hdr = (struct libnet_ipv4_hdr *)(packet + sizeof(struct libnet_ethernet_hdr));
 		struct libnet_tcp_hdr *tcp_hdr = (struct libnet_tcp_hdr *)(packet + sizeof(struct libnet_ethernet_hdr) + sizeof(struct libnet_ipv4_hdr));
-		printf("%u bytes captured\n", header->caplen);
+		u_int8_t* data_payload= (u_int8_t *)(packet + sizeof(struct libnet_ethernet_hdr) + sizeof(struct libnet_ipv4_hdr)+sizeof(struct libnet_tcp_hdr));
+
+		u_int16_t ether_next = ether_hdr->ether_type;
+		u_int8_t ip_next = ip_hdr->ip_p;
+
+		//printf("network protocol : %x\nTransport protocol:  %x\n",ether_next,ip_next);
+		// PREQUISITE : Ethernet -> IPv4 -> TCP 
+		if(ether_next != 0x08 || ip_next != 0x06){
+			continue;
+		}
+
+		printf("%u bytes captured\n\n", header->caplen);
 		
 		// Ethernet header
-		printf("Ethernet addr : \n");
+		printf("Ethernet addr  \n");
 		printf("destination addr : ");
 		print_MACaddr(ether_hdr->ether_dhost);
 		printf("source addr : ");
 		print_MACaddr(ether_hdr->ether_shost);
+		printf("\n");
 
 
 		// Ip header
-		printf("IP addr : \n");
+		printf("IP addr  \n");
 		printf("source addr : ");
 		print_IP_addr(ip_hdr->ip_src);
 		//printf("ip hdr[0] : %d\n",ip_hdr->ip_src);
 		printf("destination addr : ");
 		print_IP_addr(ip_hdr->ip_dst);
-		
+		printf("\n");
 		// TCP header
-		printf("TCP port : \n");
+		printf("TCP port  \n");
 		printf("source port : ");
 		print_TCP_port(tcp_hdr->th_sport);
 		printf("destination port : ");
 		print_TCP_port(tcp_hdr->th_dport);
+		printf("\n");
+
+		//Data frame
+		printf("Data Payload : ");
+		int cnt;
+		if(sizeof(data_payload)>10){
+			cnt=9;
+		}
+		else{
+			
+			//cnt=sizeof(data_payload)-1;
+		}
+		for(int i =0 ; i <=cnt ; i++){
+			printf("%02x ",data_payload[i]);
+		}
+		printf("\n");
 	}
 
 	pcap_close(pcap);

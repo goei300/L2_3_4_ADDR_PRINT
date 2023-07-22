@@ -110,8 +110,9 @@ void print_IP_addr(struct in_addr pac){
 }
 
 void print_TCP_port(u_int16_t pac){
-	printf("%d\n",pac);
+	printf("%d\n", ntohs(pac));
 }
+
 void usage() {
 	printf("syntax: pcap-test <interface>\n");
 	printf("sample: pcap-test wlan0\n");
@@ -191,9 +192,10 @@ int main(int argc, char* argv[]) {
 		// TCP header
 		printf("TCP port  \n");
 		printf("source port : ");
-		print_TCP_port(tcp_hdr->th_sport);
+		print_TCP_port(ntohs(tcp_hdr->th_sport));
 		printf("destination port : ");
-		print_TCP_port(tcp_hdr->th_dport);
+		print_TCP_port(ntohs(tcp_hdr->th_dport));
+
 		printf("\n");
 
 		//Data frame
